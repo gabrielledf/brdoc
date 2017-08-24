@@ -1,15 +1,19 @@
 package brdoc
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 )
 
+var errorValidateCPF = errors.New("Fault in CPF format.")
+var errorDigitCPF = errors.New("CPF with digit invalid.")
+
 // IsCPF verifies if the string is a valid CPF document.
-func IsCPF(doc string) bool {
+func IsCPF(doc string) (bool, error) {
 	doc = clean(doc)
 	if !validateCPFFormat(doc) {
-		return false
+		return false, errorValidateCPF
 	}
 
 	// Calculates the first digit.
@@ -20,7 +24,13 @@ func IsCPF(doc string) bool {
 	d = d + digit
 	digit = calculateDigit(d, 11)
 
-	return doc == d+digit
+	if doc == d+digit {	
+		return true, nil
+	} else {
+		return false, errorDigitCPF
+	}
+
+//return doc == d+digit
 }
 
 // IsCNPJ verifies if the string is a valid CNPJ document.
