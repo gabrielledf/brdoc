@@ -54,6 +54,10 @@ func init() {
 func IsCPF(doc string) (bool, error) {
 	doc = clean(doc)
 
+	if doc == "" {
+		return false, errorValidateCPF
+	}
+
 	if !validateCPFFormat(doc) {
 		return false, errorValidateCPF
 	}
@@ -76,6 +80,9 @@ func IsCPF(doc string) (bool, error) {
 // IsCNPJ verifies if the string is a valid CNPJ document.
 func IsCNPJ(doc string) (bool, error) {
 	doc = clean(doc)
+	if doc == "" {
+		return false, errorValidateCNPJ
+	}
 	if !validateCNPJFormat(doc) {
 		return false, errorValidateCNPJ
 	}
@@ -105,17 +112,11 @@ func validateCNPJFormat(doc string) bool {
 
 func validateFormat(pattern *regexp.Regexp, doc string) bool {
 	for _, p := range invalid {
-		//ok := p.MatchString(doc)
-		if ok := p.MatchString(doc); ok {
+		if p.MatchString(doc) {
 			return false
 		}
 	}
-
-	if ok := pattern.MatchString(doc); ok {
-		return false
-	} else {
-		return true
-	}
+	return !pattern.MatchString(doc)
 }
 
 func clean(doc string) string {
@@ -135,9 +136,6 @@ func calculateDigit(doc string, positions int) string {
 	// x10   x9   x8   x7   x6   x5   x4   x3   x2
 	//  30 + 36 + 16 + 42 +  6 + 40 + 28 +  3 +  0 = 201
 	for i := 0; i < len(doc); i++ {
-		//digit, _ := strconv.ParseInt(string(doc[i]), 10, 0)
-
-		//sum += int(digit) * positions
 		sum += int(doc[i]-'0') * positions
 		positions--
 
