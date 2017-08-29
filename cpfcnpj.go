@@ -8,10 +8,52 @@ import (
 
 var errorValidateCPF = errors.New("Fault in CPF format.")
 var errorDigitCPF = errors.New("CPF with digit invalid.")
+var errorValidateCNPJ = errors.New("Fault in CNPJ format.")
+var errorDigitCNPJ = errors.New("CNPJ with digit invalid.")
+
+var reCpf *regexp.Regexp
+var reCnpj *regexp.Regexp
+var reAll0, reAll1, reAll2, reAll3, reAll4, reAll5, reAll6, reAll7, reAll8, reAll9 *regexp.Regexp
+var reall0, reall1, reall2, reall3, reall4, reall5, reall6, reall7, reall8, reall9 *regexp.Regexp
+
+var invalid []*regexp.Regexp
+
+func init() {
+	reCpf = regexp.MustCompile(`^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$`)
+	reCnpj = regexp.MustCompile(`^\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}$`)
+
+	//all digit equals to CPF
+	reAll0 = regexp.MustCompile(`^000\.?000\.?000-?00$`)
+	reAll1 = regexp.MustCompile(`^111\.?111\.?111-?11$`)
+	reAll2 = regexp.MustCompile(`^222\.?222\.?222-?22$`)
+	reAll3 = regexp.MustCompile(`^333\.?333\.?333-?33`)
+	reAll4 = regexp.MustCompile(`^444\.?444\.?444-?44`)
+	reAll5 = regexp.MustCompile(`^555\.?555\.?555-?55`)
+	reAll6 = regexp.MustCompile(`^666\.?666\.?666-?66$`)
+	reAll7 = regexp.MustCompile(`^777\.?777\.?777-?77$`)
+	reAll8 = regexp.MustCompile(`^888\.?888\.?888-?88$`)
+	reAll9 = regexp.MustCompile(`^999\.?999\.?999-?99$`)
+
+	//all digit equals to CNPJ
+	reall0 = regexp.MustCompile(`^\d{2}\.?\d{3}\.?\d{3}\/?0000-?\d{2}$`)
+	reall1 = regexp.MustCompile(`^11\.?111\.?111\/?1111-?11$`)
+	reall2 = regexp.MustCompile(`^22\.?222\.?222\/?2222-?22$`)
+	reall3 = regexp.MustCompile(`^33\.?333\.?333\/?3333-?33$`)
+	reall4 = regexp.MustCompile(`^44\.?444\.?444\/?4444-?44$`)
+	reall5 = regexp.MustCompile(`^55\.?555\.?555\/?5555-?55`)
+	reall6 = regexp.MustCompile(`^66\.?666\.?666\/?6666-?66$`)
+	reall7 = regexp.MustCompile(`^77\.?777\.?777\/?7777-?77$`)
+	reall8 = regexp.MustCompile(`^88\.?888\.?888\/?8888-?88$`)
+	reall9 = regexp.MustCompile(`^99\.?999\.?999\/?9999-?99$`)
+
+	invalid = append(invalid, reAll0, reAll1, reAll2, reAll3, reAll4, reAll5, reAll6, reAll7, reAll8, reAll9)
+	invalid = append(invalid, reall0, reall1, reall2, reall3, reall4, reall5, reall6, reall7, reall8, reall9)
+}
 
 // IsCPF verifies if the string is a valid CPF document.
 func IsCPF(doc string) (bool, error) {
 	doc = clean(doc)
+
 	if !validateCPFFormat(doc) {
 		return false, errorValidateCPF
 	}
@@ -24,20 +66,18 @@ func IsCPF(doc string) (bool, error) {
 	d = d + digit
 	digit = calculateDigit(d, 11)
 
-	if doc == d+digit {	
+	if doc == d+digit {
 		return true, nil
 	} else {
 		return false, errorDigitCPF
 	}
-
-//return doc == d+digit
 }
 
 // IsCNPJ verifies if the string is a valid CNPJ document.
-func IsCNPJ(doc string) bool {
+func IsCNPJ(doc string) (bool, error) {
 	doc = clean(doc)
 	if !validateCNPJFormat(doc) {
-		return false
+		return false, errorValidateCNPJ
 	}
 
 	// Calculates the first digit.
@@ -48,45 +88,34 @@ func IsCNPJ(doc string) bool {
 	d = d + digit
 	digit = calculateDigit(d, 6)
 
-	return doc == d+digit
+	if doc == d+digit {
+		return true, nil
+	} else {
+		return false, errorDigitCNPJ
+	}
 }
 
 func validateCPFFormat(doc string) bool {
-	return validateFormat("^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$", doc,
-		"^000\\.?000\\.?000-?00$",
-		"^111\\.?111\\.?111-?11$",
-		"^222\\.?222\\.?222-?22$",
-		"^333\\.?333\\.?333-?33$",
-		"^444\\.?444\\.?444-?44$",
-		"^555\\.?555\\.?555-?55$",
-		"^666\\.?666\\.?666-?66$",
-		"^777\\.?777\\.?777-?77$",
-		"^888\\.?888\\.?888-?88$",
-		"^999\\.?999\\.?999-?99$")
+	return validateFormat(reCpf, doc)
 }
 
 func validateCNPJFormat(doc string) bool {
-	return validateFormat("^\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}$", doc,
-		"^\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?0000-?\\d{2}$",
-		"^11\\.?111\\.?111\\/?1111-?11$",
-		"^22\\.?222\\.?222\\/?2222-?22$",
-		"^33\\.?333\\.?333\\/?3333-?33$",
-		"^44\\.?444\\.?444\\/?4444-?44$",
-		"^55\\.?555\\.?555\\/?5555-?55$",
-		"^66\\.?666\\.?666\\/?6666-?66$",
-		"^77\\.?777\\.?777\\/?7777-?77$",
-		"^88\\.?888\\.?888\\/?8888-?88$",
-		"^99\\.?999\\.?999\\/?9999-?99$")
+	return validateFormat(reCnpj, doc)
 }
 
-func validateFormat(pattern, doc string, invalid ...string) bool {
+func validateFormat(pattern *regexp.Regexp, doc string) bool {
 	for _, p := range invalid {
-		if ok, err := regexp.MatchString(p, doc); err != nil || ok {
+		//ok := p.MatchString(doc)
+		if ok := p.MatchString(doc); ok {
 			return false
 		}
 	}
-	ok, err := regexp.MatchString(pattern, doc)
-	return err == nil && ok
+
+	if ok := pattern.MatchString(doc); ok {
+		return false
+	} else {
+		return true
+	}
 }
 
 func clean(doc string) string {
