@@ -11,7 +11,7 @@ func TestIsCPF(t *testing.T) {
 	for i, v := range []struct {
 		valueTested string
 		expected bool
-	}{
+	}{	
 		// Invalid format.
 		{"3467875434578764345789654", false},
 		{"", false},
@@ -34,8 +34,10 @@ func TestIsCPF(t *testing.T) {
 		{"099.075.865-06", false},
 
 		// Valid.
+		{"97635723049", true},
+		{"80949282049", true},
 		{"248.438.034-80", true},
-		{"099.075.865-60", true},
+		{"099.075.865-60", true},	
 	} {
 		t.Logf("#%d CPF validation of %s should return %v: ", i, v.valueTested, v.expected)
 		got,_ := IsCPF(v.valueTested)

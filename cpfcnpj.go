@@ -6,10 +6,9 @@ import (
 	"strconv"
 )
 
-var errorValidateCPF = errors.New("Fault in CPF format.")
-var errorDigitCPF = errors.New("CPF with digit invalid.")
-var errorValidateCNPJ = errors.New("Fault in CNPJ format.")
-var errorDigitCNPJ = errors.New("CNPJ with digit invalid.")
+
+var errorValidate = errors.New("Invalid format")
+var errorDigit = errors.New("Invalid digit")
 
 var reCpf *regexp.Regexp
 var reCnpj *regexp.Regexp
@@ -52,64 +51,13 @@ func init() {
 
 // IsCPF verifies if the string is a valid CPF document.
 func IsCPF(doc string) (bool, error) {
-	doc = clean(doc)
-
-	if doc == "" {
-		return false, errorValidateCPF
-	}
-
-	if !validateCPFFormat(doc) {
-		return false, errorValidateCPF
-	}
-
-	// Calculates the first digit.
-	d := doc[:9]
-	digit := calculateDigit(d, 10)
-
-	// Calculates the second digit.
-	d = d + digit
-	digit = calculateDigit(d, 11)
-
-	if doc == d+digit {
-		return true, nil
-	} else {
-		return false, errorDigitCPF
-	}
+	return check(doc, reCpf, 10)
 }
 
 // IsCNPJ verifies if the string is a valid CNPJ document.
 func IsCNPJ(doc string) (bool, error) {
-	doc = clean(doc)
-	if doc == "" {
-		return false, errorValidateCNPJ
-	}
-	if !validateCNPJFormat(doc) {
-		return false, errorValidateCNPJ
-	}
-
-	// Calculates the first digit.
-	d := doc[:12]
-	digit := calculateDigit(d, 5)
-
-	// Calculates the second digit.
-	d = d + digit
-	digit = calculateDigit(d, 6)
-
-	if doc == d+digit {
-		return true, nil
-	} else {
-		return false, errorDigitCNPJ
-	}
+	return check(doc, reCnpj, 5)
 }
-
-func validateCPFFormat(doc string) bool {
-	return validateFormat(reCpf, doc)
-}
-
-func validateCNPJFormat(doc string) bool {
-	return validateFormat(reCnpj, doc)
-}
-
 func validateFormat(pattern *regexp.Regexp, doc string) bool {
 	for _, p := range invalid {
 		if p.MatchString(doc) {
@@ -150,3 +98,34 @@ func calculateDigit(doc string, positions int) string {
 	}
 	return strconv.FormatInt(int64(11-sum), 10)
 }
+
+
+func check(doc string, re *regexp.Regexp, digit int) (bool, error) {
+	var pos int
+
+	doc = clean(doc)
+	if doc == "" {
+		return false, errorValidate
+	}
+	if !validateFormat(re, doc) {
+		return false, errorValidate
+	}
+
+	pos = len(doc) - 2
+
+	// Calculates the first digit.
+	if calculateDigit(doc[:pos], digit) != doc[pos:pos+1] {
+		return false, errorDigit
+	}
+
+	// Calculates the second digit.
+	if calculateDigit(doc[:pos+1], digit+1) != doc[pos+1:pos+2] {
+		return false, errorDigit
+	}
+
+	return true, nil
+}
+
+
+
+
