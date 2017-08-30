@@ -10,8 +10,8 @@ const (
 func TestIsCPF(t *testing.T) {
 	for i, v := range []struct {
 		valueTested string
-		expected bool
-	}{	
+		expected    bool
+	}{
 		// Invalid format.
 		{"3467875434578764345789654", false},
 		{"", false},
@@ -37,10 +37,10 @@ func TestIsCPF(t *testing.T) {
 		{"97635723049", true},
 		{"80949282049", true},
 		{"248.438.034-80", true},
-		{"099.075.865-60", true},	
+		{"099.075.865-60", true},
 	} {
 		t.Logf("#%d CPF validation of %s should return %v: ", i, v.valueTested, v.expected)
-		got,_ := IsCPF(v.valueTested)
+		got, _ := IsCPF(v.valueTested)
 		if got != v.expected {
 			t.Fatal(ballotX)
 		}
@@ -51,7 +51,7 @@ func TestIsCPF(t *testing.T) {
 func TestIsCNPJ(t *testing.T) {
 	for i, v := range []struct {
 		valueTested string
-		expected bool
+		expected    bool
 	}{
 		// Invalid format.
 		{"3467875434578764345789654", false},
@@ -79,11 +79,10 @@ func TestIsCNPJ(t *testing.T) {
 		{"74.221.325/0001-30", true},
 	} {
 		t.Logf("#%d CNPJ validation of %s should return %v: ", i, v.valueTested, v.expected)
-		got,_ := IsCNPJ(v.valueTested)
+		got, _ := IsCNPJ(v.valueTested)
 		if got != v.expected {
 			t.Fatal(ballotX)
 		}
 		t.Log(checkMark)
 	}
 }
-

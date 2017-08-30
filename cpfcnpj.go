@@ -6,7 +6,6 @@ import (
 	"strconv"
 )
 
-
 var errorValidate = errors.New("Invalid format")
 var errorDigit = errors.New("Invalid digit")
 
@@ -99,7 +98,6 @@ func calculateDigit(doc string, positions int) string {
 	return strconv.FormatInt(int64(11-sum), 10)
 }
 
-
 func check(doc string, re *regexp.Regexp, digit int) (bool, error) {
 	var pos int
 
@@ -125,7 +123,3 @@ func check(doc string, re *regexp.Regexp, digit int) (bool, error) {
 
 	return true, nil
 }
-
-
-
-
