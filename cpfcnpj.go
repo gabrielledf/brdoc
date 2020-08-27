@@ -66,7 +66,7 @@ func validateFormat(pattern *regexp.Regexp, doc string) bool {
 	return !pattern.MatchString(doc)
 }
 
-func clean(doc string) string {
+func Clean(doc string) string {
 	re, err := regexp.Compile("\\D")
 	if err != nil {
 		return ""
@@ -101,7 +101,7 @@ func calculateDigit(doc string, positions int) string {
 func check(doc string, re *regexp.Regexp, digit int) (bool, error) {
 	var pos int
 
-	doc = clean(doc)
+	doc = Clean(doc)
 	if doc == "" {
 		return false, errorValidate
 	}
